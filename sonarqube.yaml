@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sonarqube-storage-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: sonarqube-statefulset
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: sonarqube
+      name: sonarqube
+    spec:
+      containers:
+        - name: sonarqube-container
+          image: sonarqube:lts
+          ports:
+            - containerPort: 9000
+          volumeMounts:
+            - name: sonarqube-storage
+              mountPath: /opt/sonarqube/data             
+      volumes:
+        - name: sonarqube-storage
+          persistentVolumeClaim:
+            claimName: sonarqube-storage-pvc
+  selector:
+    matchLabels:
+      app: sonarqube
+  serviceName: svc-sonarqube
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-sonarqube
+spec:
+  type: NodePort
+  ports:
+    - port: 9000
+      nodePort: 31001
+  selector:
+    app: sonarqube

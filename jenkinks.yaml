@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jenkins-storage-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: jenkins-statefulset
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: jenkins
+      name: jenkins
+    spec:
+      containers:
+        - name: jenkins-container
+          image: jenkins/jenkins
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: jenkins-storage
+              mountPath: /var/jenkins_home
+      volumes:
+        - name: jenkins-storage
+          persistentVolumeClaim:
+            claimName: jenkins-storage-pvc
+  selector:
+    matchLabels:
+      app: jenkins
+  serviceName: svc-jenkins
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-jenkins
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      nodePort: 31000
+  selector:
+    app: jenkins
