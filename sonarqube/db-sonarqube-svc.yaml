@@ -8,6 +8,6 @@ metadata:
 spec:
   ports:
   - port: 5432
-    name: postgres
+    name: db-sonarqube
   selector:
-    app: postgres
+    app: db-sonarqube
