@@ -43,6 +43,11 @@ spec:
         - name: sonarqube-pvc
           mountPath: "/opt/sonarqube/extensions/"
           subPath: extensions
+        resources:
+          requests:
+            memory: "1024Mi"
+          limits:
+            memory: "2048Mi"
       volumes:
       - name: sonarqube-pvc
         persistentVolumeClaim:
