@@ -4,7 +4,7 @@ metadata:
   name: sonarqube-svc
   namespace: sonarqube
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   ports:
     - port: 8080
   selector:
