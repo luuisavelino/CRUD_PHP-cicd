@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-sonarqube-dp
+  namespace: sonar
+  labels:
+    app: db-sonarqube
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db-sonarqube
+  template:
+    metadata:
+      labels:
+        app: db-sonarqube
+    spec:
+      securityContext:
+        fsGroup: 2000 
+      containers:
+      - name: db-sonarqube-container
+        image: bitnami/postgresql
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5432
+        env:
+        - name: ALLOW_EMPTY_PASSWORD
+          value: "yes"
+        envFrom:
+        - configMapRef:
+            name: db-sonarqube-cfg
+        volumeMounts:
+        - name: db-sonarqube
+          mountPath: /bitnami/postgresql
+      volumes:
+      - name: db-sonarqube
+        persistentVolumeClaim:
+          claimName: db-sonarqube-pvc
